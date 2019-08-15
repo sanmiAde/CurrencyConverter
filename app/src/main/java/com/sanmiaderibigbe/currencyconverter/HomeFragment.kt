@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import com.sanmiaderibigbe.currencyconverter.data.Currency
 import com.sanmiaderibigbe.currencyconverter.ui.CurrencySelectionDialogFragment
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -17,6 +18,9 @@ import kotlinx.android.synthetic.main.fragment_home.*
  *
  */
 class HomeFragment : Fragment() {
+
+    private var currencyToConvertTo : Currency? = null
+    private var currencyToConvertFrom : Currency? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,12 +33,17 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        text_currency_to_convert_from.setOnClickListener {
+        val convertFromTextView =  text_currency_to_convert_from
+        convertFromTextView.setOnClickListener {
+            showCurrencySelection(it)
+        }
+        val convertToTextView =  text_currency_to_convert_to
+        convertToTextView.setOnClickListener {
             showCurrencySelection(it)
         }
 
-        text_currency_to_convert_to.setOnClickListener {
-            showCurrencySelection(it)
+        img_swap_currency.setOnClickListener {
+            swapCurrency(currencyToConvertTo, currencyToConvertFrom, convertToTextView, convertFromTextView)
         }
     }
 
@@ -45,9 +54,20 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun updateSelectedCurrency(currency: Currency, textView: View) {
+    private fun updateSelectedCurrency(currency: Currency?, textView: View) {
         val context = requireContext()
-        val text = context.getString(R.string.currency_abbreviation, currency.flag, currency.code)
+        val text = context.getString(R.string.currency_abbreviation, currency?.flag, currency?.code)
         (textView as TextView ).setText(text)
+
+        if(textView.id == R.id.text_currency_to_convert_to){
+            currencyToConvertTo = currency
+        }else{
+            currencyToConvertFrom = currency
+        }
+    }
+
+    private fun swapCurrency(currencyToConvertTo : Currency?, currencyToConvertFrom : Currency?, currencyToConvertToTextView: TextView, currencyToConvertFromTextView: TextView ){
+        updateSelectedCurrency(currencyToConvertFrom,currencyToConvertToTextView)
+        updateSelectedCurrency(currencyToConvertTo,currencyToConvertFromTextView)
     }
 }
