@@ -1,10 +1,9 @@
-package com.sanmiaderibigbe.currencyconverter.ui
+package com.sanmiaderibigbe.currencyconverter.ui.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.sanmiaderibigbe.currencyconverter.R
 import com.sanmiaderibigbe.currencyconverter.data.Currency

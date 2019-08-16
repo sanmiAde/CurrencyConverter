@@ -4,6 +4,6 @@
             xmlns:tools="http://schemas.android.com/tools" android:id="@+id/nav_graph.xml"
             app:startDestination="@id/homeFragment">
 
-    <fragment android:id="@+id/homeFragment" android:name="com.sanmiaderibigbe.currencyconverter.HomeFragment"
+    <fragment android:id="@+id/homeFragment" android:name="com.sanmiaderibigbe.currencyconverter.ui.home.HomeFragment"
               android:label="fragment_home" tools:layout="@layout/fragment_home"/>
 </navigation>

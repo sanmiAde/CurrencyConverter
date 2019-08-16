@@ -1,4 +1,4 @@
-package com.sanmiaderibigbe.currencyconverter
+package com.sanmiaderibigbe.currencyconverter.ui.home
 
 
 import android.os.Bundle
@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
+import com.sanmiaderibigbe.currencyconverter.R
 import com.sanmiaderibigbe.currencyconverter.data.Currency
-import com.sanmiaderibigbe.currencyconverter.ui.CurrencySelectionDialogFragment
+import com.sanmiaderibigbe.currencyconverter.ui.dialogs.CurrencySelectionDialogFragment
 import kotlinx.android.synthetic.main.fragment_home.*
 
 
