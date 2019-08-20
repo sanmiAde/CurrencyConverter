@@ -8,7 +8,7 @@ object RetrofitInstance {
 
     private const val BASE_URL  = "http://data.fixer.io/api/"
 
-    internal fun initRetrofiInstance() : FixerIOService {
+     fun initRetrofiInstance() : FixerIOService {
         val retrofit = Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
 

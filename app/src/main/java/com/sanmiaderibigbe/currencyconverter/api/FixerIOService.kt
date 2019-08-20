@@ -1,21 +1,21 @@
 package com.sanmiaderibigbe.currencyconverter.api
 
-import com.sanmiaderibigbe.currencyconverter.BuildConfig
-import com.sanmiaderibigbe.currencyconverter.model.Ratings
+
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+import com.sanmiaderibigbe.currencyconverter.api.model.FixerRating
 
-internal interface FixerIOService  {
+interface FixerIOService  {
 
 
-    @GET("latest/")
-    fun getCurrentConversionRates(@Query("access_key") apiKey : String, @Query("base") baseCurrency : String, @Query("symbols") currencyToConvertTo : String) : Single<Response<Ratings>>
+    @GET("latest")
+    fun getCurrentConversionRates(@Query("access_key") apiKey : String, @Query("symbols") symbols : String) : Single<Response<FixerRating>>
 
     companion object{
-        val apiKey = "f0abdaf471e31a94ba06657beed42ed6"
+        val apiKey = "c8bb284a7174ab46210e6514aab3dd80"
 
         const val BASE_CURRENCY = "USD"
     }
