@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.sanmiaderibigbe.currencyconverter.R
+import com.sanmiaderibigbe.currencyconverter.api.Status
 import com.sanmiaderibigbe.currencyconverter.data.Currency
 import com.sanmiaderibigbe.currencyconverter.ui.dialogs.CurrencySelectionDialogFragment
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -37,27 +38,38 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val convertFromTextView = text_currency_to_convert_from
-        convertFromTextView.setOnClickListener {
+        val convertFromTextViewSpinner = text_currency_to_convert_from
+        convertFromTextViewSpinner.setOnClickListener {
             showCurrencySelection(it)
         }
-        val convertToTextView = text_currency_to_convert_to
-        convertToTextView.setOnClickListener {
+        val convertToTextViewSpinner = text_currency_to_convert_to
+        convertToTextViewSpinner.setOnClickListener {
             showCurrencySelection(it)
         }
 
         img_swap_currency.setOnClickListener {
-            swapCurrency(currencyToConvertTo, currencyToConvertFrom, convertToTextView, convertFromTextView)
+            swapCurrency(currencyToConvertTo, currencyToConvertFrom, convertToTextViewSpinner, convertFromTextViewSpinner)
         }
 
         btn_submit.setOnClickListener {
-            val currencyConvertTo = txt_input_currency_convert_to.editText?.text.toString()
-
+            val currencyConvertToAmount = txt_input_currency_convert_to.editText
+            val currencyToConvertFromAmount = txt_input_currency_to_convert_from?.editText
 
             homeViewModel.getRatings(currencyToConvertTo?.code!!, currencyToConvertFrom?.code!!)
             homeViewModel.getRatingsLiveData().observe(this, Observer {
-                it.data.let { fixerRatings -> Toast.makeText(requireActivity(), "${fixerRatings?.getCurrencyToConvertFromRating()}" + "${fixerRatings?.getCurrencyToConvertFromRating()}", Toast.LENGTH_SHORT).show()
+                when (it.status) {
+                    Status.LOADING -> {
+                    }
+                    Status.ERROR -> {
 
+                    }
+                    Status.LOADED -> {
+                    }
+                    Status.SUCCESS -> {
+                        it.data?.let { exchange ->
+                                    currencyConvertToAmount?.setText("${currencyToConvertFromAmount?.text.toString().toDouble() *  exchange}")
+                        }
+                    }
                 }
             })
 

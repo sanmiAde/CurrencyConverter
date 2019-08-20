@@ -3,19 +3,23 @@ package com.sanmiaderibigbe.currencyconverter.ui.home
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sanmiaderibigbe.currencyconverter.api.model.FixerRatingsReponse
 import com.sanmiaderibigbe.currencyconverter.api.Resource
 import com.sanmiaderibigbe.currencyconverter.api.model.FixerRating
+import com.sanmiaderibigbe.currencyconverter.api.model.FixerRatingsReponse
 import com.sanmiaderibigbe.currencyconverter.repo.CurrencyRateRepository
+import com.sanmiaderibigbe.currencyconverter.useCases.CurrencyConverterUsecases
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.subscribeBy
 import retrofit2.Response
 
-class HomeViewModel(private val currencyRateRepository: CurrencyRateRepository) : ViewModel() {
+class HomeViewModel(
+    private val currencyRateRepository: CurrencyRateRepository,
+    private val currencyConverterUsecases: CurrencyConverterUsecases
+) : ViewModel() {
 
-    private val currencyExchangeRateResourceLiveData = MutableLiveData<Resource<FixerRatingsReponse>>()
+    private val currencyExchangeRateLiveData = MutableLiveData<Resource<Double>>()
 
     private val disposable = CompositeDisposable()
 
@@ -23,7 +27,7 @@ class HomeViewModel(private val currencyRateRepository: CurrencyRateRepository) 
 
     fun getRatings(currencyToConvertTo: String, currencyToConvertFrom: String) {
 
-        disposable.add(  currencyRateRepository.getCurrencyConversionRate(currencyToConvertTo).zipWith(
+        disposable.add(currencyRateRepository.getCurrencyConversionRate(currencyToConvertTo).zipWith(
             currencyRateRepository.getCurrencyConversionRate(currencyToConvertFrom),
             BiFunction { currencyToConvertToRating: Response<FixerRating>, currencyToConvertFromRating: Response<FixerRating> ->
                 FixerRatingsReponse(
@@ -31,44 +35,38 @@ class HomeViewModel(private val currencyRateRepository: CurrencyRateRepository) 
                     currencyToConvertFromRating
                 )
 
-            }).subscribeBy(
+            }).observeOn(AndroidSchedulers.mainThread()).subscribeBy(
             onSuccess = {
-
-                updateReponse(response = it)
+                computeConversionRate(it)
 
             },
             onError = {
-
+                updateErrorReponse(it)
             }
         ))
 
 
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribeBy(
-//            onError = { throwable -> updateErrorReponse(throwable)
-//            Log.d(HomeViewModelTag, throwable.message)},
-//            onSuccess = {
-//                    response -> run{updateReponse(response)
-//                    Log.d(HomeViewModelTag, response.raw().toString())}
-//            }
-
     }
 
-    private fun updateReponse(response: FixerRatingsReponse) {
-
-
-        currencyExchangeRateResourceLiveData.value = Resource.success(response)
-
-
-    }
-
-    private fun updateErrorReponse(throwable: Throwable) {
-        currencyExchangeRateResourceLiveData.value = Resource.error(throwable.localizedMessage, null
+    private fun computeConversionRate(reponse: FixerRatingsReponse) {
+        val conversionRate = currencyConverterUsecases.computeConversionRate(
+            reponse.getCurrencyToConvertFromRating(),
+            reponse.getCurrencyToConvertToRating()
+        )
+        currencyExchangeRateLiveData.value = Resource.success(
+            conversionRate
         )
     }
 
-    fun getRatingsLiveData(): MutableLiveData<Resource<FixerRatingsReponse>> {
-        return currencyExchangeRateResourceLiveData
+
+    private fun updateErrorReponse(throwable: Throwable) {
+        currencyExchangeRateLiveData.value = Resource.error(
+            throwable.localizedMessage, Double.MIN_VALUE
+        )
+    }
+
+    fun getRatingsLiveData(): MutableLiveData<Resource<Double>> {
+        return currencyExchangeRateLiveData
     }
 
     override fun onCleared() {
